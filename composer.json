@@ -1,0 +1,24 @@
+{
+    "name": "friendz/orderz-php-sdk",
+    "type": "library",
+    "version": "0.0.1",
+    "description": "orderz api-sdk",
+    "authors": [
+        {
+            "name": "nickfla1",
+            "email": "lanterniniflavio@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.2.0",
+        "nesbot/carbon": "2.19.2",
+        "guzzlehttp/guzzle": "6.3.3",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Friendz\\Orderz\\": "src/"
+        }
+    }
+}
