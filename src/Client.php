@@ -7,6 +7,7 @@ namespace Friendz\Orderz\Api;
 use Friendz\Orderz\Api\Exceptions\ApiException;
 use Friendz\Orderz\Api\Exceptions\MalformedResponseException;
 use Friendz\Orderz\Api\Models\Order;
+use Friendz\Orderz\Api\Models\OrderResult;
 use Friendz\Orderz\Api\Models\Product;
 use Friendz\Orderz\Api\Requests\CreateOrder;
 use GuzzleHttp\Client as GuzzleClient;
@@ -54,7 +55,9 @@ class Client
     {
         $data = $request->toArray();
 
-        $response = $this->sendPostRequest('/', $data);
+        $response = $this->sendPostRequest('/orders', $data);
+
+        return $this->responseToOrder($response);
     }
 
     /**
@@ -119,6 +122,7 @@ class Client
             'Content-Type' => 'application/json',
             'Authorization' => 'Bearer ' . $this->token
         ], json_encode($data));
+
         try {
             $response = $this->httpClient->send($request);
         } catch (ClientException $e) {
@@ -189,16 +193,61 @@ class Client
 
     /**
      * @param $data
+     * @return Order|null
+     * @throws MalformedResponseException
+     */
+    private function responseToOrder($data): ?Order
+    {
+        if (!$data) {
+            return null;
+        }
+
+        if (!is_object($data)) {
+            $data = (object)$data;
+        }
+
+        if (!property_exists($data, 'status') || !property_exists($data, 'order')) {
+            throw new MalformedResponseException(
+                sprintf('`status` or `order` attributes not defined in response body. Raw response body: %s', json_encode($data))
+            );
+        }
+
+        if ($data->status !== 'success') {
+            throw new MalformedResponseException(
+                sprintf('Response was successful but status is not `success`. Raw response body: %s', json_encode($data))
+            );
+        }
+
+        $order = $data->order;
+
+        $results = [];
+        foreach ($order->result as $result) {
+            $results[] = OrderResult::make(
+                $result->link,
+                $result->code
+            );
+        }
+
+        return Order::make(
+            (int)$order->id,
+            (string)$order->externalId,
+            $order->status,
+            $results
+        );
+    }
+
+    /**
+     * @param $data
      * @return array
      * @throws MalformedResponseException
      */
     private function responseToProductList($data): array
     {
         if (!$data) {
-            return null;
+            return [];
         }
 
-        if (!is_array($data)) {
+        if (!is_object($data)) {
             $data = (object)$data;
         }
 

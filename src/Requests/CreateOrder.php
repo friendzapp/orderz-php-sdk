@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Friendz\Orderz\Api\Requests;
 
-use Friendz\FdzBroker\Api\Util\Arrayable;
 use Friendz\Orderz\Api\Models\User;
 
-class CreateOrder implements Arrayable
+class CreateOrder
 {
     /**
      * @var string
@@ -25,6 +24,11 @@ class CreateOrder implements Arrayable
     public $user;
 
     /**
+     * @var int
+     */
+    public $quantity;
+
+    /**
      * @return array
      */
     function toArray(): array
@@ -32,7 +36,8 @@ class CreateOrder implements Arrayable
         return [
             'externalId' => $this->externalId,
             'productId' => $this->productId,
-            'user' => $this->user->toArray()
+            'user' => $this->user->toArray(),
+            'quantity' => $this->quantity
         ];
     }
 }

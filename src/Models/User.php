@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Friendz\Orderz\Api\Models;
 
-use Friendz\FdzBroker\Api\Util\Arrayable;
-
-class User implements Arrayable
+class User
 {
     /**
      * @var string
