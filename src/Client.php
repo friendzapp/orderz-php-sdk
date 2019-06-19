@@ -128,7 +128,7 @@ class Client
         } catch (ClientException $e) {
             $response = $this->handleClientException($e);
         } catch (GuzzleException $e) {
-            throw new ApiException($e->getMessage());
+            throw new ApiException($e->getMessage(), true);
         }
 
         return json_decode((string)$response->getBody());
@@ -152,7 +152,7 @@ class Client
         } catch (ClientException $e) {
             $response = $this->handleClientException($e);
         } catch (GuzzleException $e) {
-            throw new ApiException($e->getMessage());
+            throw new ApiException($e->getMessage(), true);
         }
 
         return json_decode((string)$response->getBody());
@@ -167,28 +167,38 @@ class Client
     private function handleClientException(ClientException $e) {
         $response = $e->getResponse();
         $statusCode = $response->getStatusCode();
+
         if ($statusCode >= 200 && $statusCode < 300) {
             return $response;
         }
+
         if ($statusCode >= 400 && $statusCode < 500) {
             // Client Error
             $responseDecoded = json_encode((string)$response->getBody());
+
+            $shouldRetry = false;
+            if (property_exists($responseDecoded, 'data')) {
+                $shouldRetry = $responseDecoded->data->shouldRetry;
+            }
+
             if (!property_exists($responseDecoded, 'status') || !property_exists($responseDecoded, 'message')) {
                 throw new MalformedResponseException(
-                    sprintf('`status` or `message` attributes not defined in response body. Raw response body: %s', json_encode($responseDecoded))
+                    sprintf('`status` or `message` attributes not defined in response body. Raw response body: %s', json_encode($responseDecoded)),
+                    $shouldRetry
                 );
             }
+
             if ($responseDecoded->status !== 'error') {
                 throw new MalformedResponseException(
-                    sprintf('Response was unsuccessful but status is not `error`. Raw response body: %s', json_encode($responseDecoded))
+                    sprintf('Response was unsuccessful but status is not `error`. Raw response body: %s', json_encode($responseDecoded)),
+                    $shouldRetry
                 );
             }
 
-            // TODO: more specific error handling!
-
-            throw new ApiException($responseDecoded->message);
+            throw new ApiException($responseDecoded->message, $shouldRetry);
         }
-        throw new ApiException($e->getMessage());
+
+        throw new ApiException($e->getMessage(), true);
     }
 
     /**
@@ -208,13 +218,8 @@ class Client
 
         if (!property_exists($data, 'status') || !property_exists($data, 'order')) {
             throw new MalformedResponseException(
-                sprintf('`status` or `order` attributes not defined in response body. Raw response body: %s', json_encode($data))
-            );
-        }
-
-        if ($data->status !== 'success') {
-            throw new MalformedResponseException(
-                sprintf('Response was successful but status is not `success`. Raw response body: %s', json_encode($data))
+                sprintf('`status` or `order` attributes not defined in response body. Raw response body: %s', json_encode($data)),
+                true
             );
         }
 
@@ -253,13 +258,8 @@ class Client
 
         if (!property_exists($data, 'status') || !property_exists($data, 'products')) {
             throw new MalformedResponseException(
-                sprintf('`status` or `products` attributes not defined in response body. Raw response body: %s', json_encode($data))
-            );
-        }
-
-        if ($data->status !== 'success') {
-            throw new MalformedResponseException(
-                sprintf('Response was successful but status is not `success`. Raw response body: %s', json_encode($data))
+                sprintf('`status` or `products` attributes not defined in response body. Raw response body: %s', json_encode($data)),
+                true
             );
         }
 
