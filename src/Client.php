@@ -185,7 +185,7 @@ class Client
             $responseDecoded = json_decode((string)$response->getBody());
 
             $shouldRetry = false;
-            if (property_exists($responseDecoded, 'data')) {
+            if (property_exists($responseDecoded, 'data') && property_exists($responseDecoded->data, 'shouldRetry')) {
                 $shouldRetry = $responseDecoded->data->shouldRetry;
             }
 
