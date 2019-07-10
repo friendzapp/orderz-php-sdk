@@ -6,6 +6,7 @@ namespace Friendz\Orderz\Api;
 
 use Friendz\Orderz\Api\Exceptions\ApiException;
 use Friendz\Orderz\Api\Exceptions\MalformedResponseException;
+use Friendz\Orderz\Api\Models\Limit;
 use Friendz\Orderz\Api\Models\Order;
 use Friendz\Orderz\Api\Models\OrderResult;
 use Friendz\Orderz\Api\Models\Product;
@@ -70,6 +71,13 @@ class Client
         $response = $this->sendGetRequest('/products');
 
         return $this->responseToProductList($response);
+    }
+
+    public function getLimit(): Limit
+    {
+        $response = $this->sendGetRequest('/limit');
+
+        dd($response);
     }
 
     /**
@@ -174,7 +182,7 @@ class Client
 
         if ($statusCode >= 400 && $statusCode < 500) {
             // Client Error
-            $responseDecoded = json_encode((string)$response->getBody());
+            $responseDecoded = json_decode((string)$response->getBody());
 
             $shouldRetry = false;
             if (property_exists($responseDecoded, 'data')) {
