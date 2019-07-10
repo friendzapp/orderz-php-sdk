@@ -273,9 +273,7 @@ class Client
             $result[] = Product::make(
                 $product->id,
                 $product->name,
-                $product->available,
-                $product->total_quantity,
-                $product->allow_less_than_zero_quantity
+                $product->available
             );
         }
 

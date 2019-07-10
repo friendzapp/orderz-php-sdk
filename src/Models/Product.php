@@ -22,29 +22,15 @@ class Product
     public $available;
 
     /**
-     * @var int
-     */
-    public $totalQuantity;
-
-    /**
-     * @var bool
-     */
-    public $allowLessThanZeroQuantity;
-
-    /**
      * @param int $id
      * @param string $name
      * @param bool $available
-     * @param int $totalQuantity
-     * @param bool $allowLessThanZeroQuantity
      * @return Product
      */
     public static function make(
         int $id,
         string $name,
-        bool $available,
-        int $totalQuantity,
-        bool $allowLessThanZeroQuantity
+        bool $available
     ): self
     {
         $model = new static;
@@ -52,8 +38,6 @@ class Product
         $model->id = $id;
         $model->name = $name;
         $model->available = $available;
-        $model->totalQuantity = $totalQuantity;
-        $model->allowLessThanZeroQuantity = $allowLessThanZeroQuantity;
 
         return $model;
     }
