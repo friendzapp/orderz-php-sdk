@@ -43,3 +43,38 @@ function bar(int $productId)
   $client->createOrder($orderRequest);
 }
 ```
+
+## Notes
+
+Both `createOrder` and `getProducts` APIs can throw either an `ApiException` or a `MalformedResponseException`.
+The first is a general API exception, the latter describes and error in the response structure.
+
+Boh exceptions have an utility method called `shouldRetry(): bool` (described in their parent class).
+Failed requests can and should be retried **only** when this method returns true.
+
+#### Example
+
+```php
+function foo(int $productId)
+{
+  /**
+   * ...
+   */
+
+  $shouldRetry = true;
+
+  /* NB: Don't use this code in production! */
+
+  do {
+    try {
+      $response = $client->createOrder($orderRequest);
+      
+      $shouldRetry = false;
+    } catch (ApiException | MalformedResponseException $e) {
+      $shouldRetry = $e->shouldRetry();
+    }
+  } while($shouldRetry);
+  
+  /* Use $response somehow */
+}
+```
