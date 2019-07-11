@@ -73,11 +73,17 @@ class Client
         return $this->responseToProductList($response);
     }
 
-    public function getLimit(): Limit
+    /**
+     * @param string|int $orderId
+     * @return Order|null
+     * @throws ApiException
+     * @throws MalformedResponseException
+     */
+    public function getOrder($orderId): ?Order
     {
-        $response = $this->sendGetRequest('/limit');
+        $response = $this->sendGetRequest("/orders/{$orderId}");
 
-        dd($response);
+        return $this->responseToOrder($response);
     }
 
     /**

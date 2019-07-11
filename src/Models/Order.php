@@ -44,4 +44,9 @@ class Order
 
         return $model;
     }
+
+    public const STATUS_PENDING     = 'pending';    // The order in pending to be processed
+    public const STATUS_PROCESSED   = 'processed';  // The order has been processed
+    public const STATUS_FAILED      = 'failed';     // The order was not processed due to an error
+    public const STATUS_NO_PROCESS  = 'no_process'; // The order was not processed and will not be processed
 }
