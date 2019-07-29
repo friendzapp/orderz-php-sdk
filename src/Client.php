@@ -287,7 +287,9 @@ class Client
             $result[] = Product::make(
                 $product->id,
                 $product->name,
-                $product->available
+                $product->cost,
+                $product->available,
+                $product->discount_percentage
             );
         }
 

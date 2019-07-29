@@ -17,27 +17,43 @@ class Product
     public $name;
 
     /**
+     * @var float
+     */
+    public $cost;
+
+    /**
      * @var bool
      */
     public $available;
 
     /**
+     * @var float
+     */
+    public $discountPercentage;
+
+    /**
      * @param int $id
      * @param string $name
+     * @param float $cost
      * @param bool $available
+     * @param float $discountPercentage
      * @return Product
      */
     public static function make(
         int $id,
         string $name,
-        bool $available
+        float $cost,
+        bool $available,
+        float $discountPercentage
     ): self
     {
         $model = new static;
 
         $model->id = $id;
         $model->name = $name;
+        $model->cost = $cost;
         $model->available = $available;
+        $model->discountPercentage = $discountPercentage;
 
         return $model;
     }
