@@ -4,25 +4,22 @@ declare(strict_types=1);
 
 namespace Friendz\Orderz\Api;
 
-use Friendz\Orderz\Api\Exceptions\ApiException;
-use Friendz\Orderz\Api\Exceptions\MalformedResponseException;
-use Friendz\Orderz\Api\Models\Limit;
+use Friendz\Orderz\Api\Models\ProductSummary;
+use Friendz\Orderz\Api\Requests\ProductsSummary as ProductsSummaryRequest;
+use function GuzzleHttp\Psr7\modify_request;
+use GuzzleHttp\Psr7\Request;
 use Friendz\Orderz\Api\Models\Order;
-use Friendz\Orderz\Api\Models\OrderResult;
-use Friendz\Orderz\Api\Models\Product;
-use Friendz\Orderz\Api\Requests\CreateOrder;
 use GuzzleHttp\Client as GuzzleClient;
+use Friendz\Orderz\Api\Models\Product;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Psr7\Request;
+use Friendz\Orderz\Api\Models\OrderResult;
+use Friendz\Orderz\Api\Requests\CreateOrder;
+use Friendz\Orderz\Api\Exceptions\ApiException;
+use Friendz\Orderz\Api\Exceptions\MalformedResponseException;
 
 class Client
 {
-    /**
-     * @var string
-     */
-    private $baseUrl;
-
     /**
      * @var string
      */
@@ -35,12 +32,10 @@ class Client
 
     /**
      * Client constructor.
-     * @param string $baseUrl
      * @param string $token
      */
-    public function __construct(string $baseUrl, string $token)
+    public function __construct(string $token)
     {
-        $this->baseUrl = $baseUrl;
         $this->token = $token;
 
         $this->httpClient = new GuzzleClient();
@@ -87,13 +82,16 @@ class Client
     }
 
     /**
-     * @param string $baseUrl
-     * @return Client
+     * @param ProductsSummaryRequest $summaryRequest
+     * @return array
+     * @throws ApiException
+     * @throws MalformedResponseException
      */
-    public function setBaseUrl(string $baseUrl): Client
+    public function getProductsSummary(ProductsSummaryRequest $summaryRequest)
     {
-        $this->baseUrl = $baseUrl;
-        return $this;
+        $response = $this->sendGetRequest('/summary/orders', $summaryRequest);
+
+        return $this->responseToProductsSummary($response);
     }
 
     /**
@@ -111,7 +109,7 @@ class Client
      */
     public function getBaseUrl(): string
     {
-        return $this->baseUrl;
+        return self::BASE_URL;
     }
 
     /**
@@ -131,7 +129,7 @@ class Client
      */
     private function sendPostRequest(string $api, array $data)
     {
-        $url = $this->baseUrl . $api;
+        $url = $this->getBaseUrl() . $api;
         $request = new Request('POST', $url, [
             'Content-Type' => 'application/json',
             'Authorization' => 'Bearer ' . $this->token
@@ -150,17 +148,25 @@ class Client
 
     /**
      * @param string $api
+     * @param null $data
      * @return mixed|null
      * @throws ApiException
      * @throws MalformedResponseException
      */
-    private function sendGetRequest(string $api)
+    private function sendGetRequest(string $api, $data = null)
     {
-        $url = $this->baseUrl . $api;
+        $url = $this->getBaseUrl() . $api;
         $request = new Request('GET', $url, [
             'Content-Type' => 'application/json',
             'Authorization' => 'Bearer ' . $this->token
         ]);
+
+        if ($data) {
+            $request = modify_request($request, [
+                'body' => json_encode($data)
+            ]);
+        }
+
         try {
             $response = $this->httpClient->send($request);
         } catch (ClientException $e) {
@@ -295,4 +301,46 @@ class Client
 
         return $result;
     }
+
+    /**
+     * @param $data
+     * @return array
+     * @throws MalformedResponseException
+     */
+    private function responseToProductsSummary($data): array
+    {
+        if (!$data) {
+            return [];
+        }
+
+        if (!is_object($data)) {
+            $data = (object)$data;
+        }
+
+        if (!property_exists($data, 'status') || !property_exists($data, 'entries')) {
+            throw new MalformedResponseException(
+                sprintf('`status` or `entries` attributes not defined in response body. Raw response body: %s', json_encode($data)),
+                true
+            );
+        }
+
+        $entries = $data->entries;
+        if (!$entries || !is_array($entries)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($entries as $entry) {
+            $result[] = ProductSummary::make(
+                $entry->product_id,
+                $entry->order_count,
+                $entry->total,
+                $entry->cps
+            );
+        }
+
+        return $result;
+    }
+
+    private const BASE_URL = 'https://orderz.amazing-friendz.com/api';
 }
