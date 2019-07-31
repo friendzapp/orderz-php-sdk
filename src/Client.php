@@ -335,7 +335,8 @@ class Client
                 $entry->product_id,
                 $entry->order_count,
                 $entry->total,
-                $entry->cps
+                $entry->cps,
+                $entry->date
             );
         }
 
