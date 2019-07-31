@@ -89,7 +89,7 @@ class Client
      */
     public function getProductsSummary(ProductsSummaryRequest $summaryRequest)
     {
-        $response = $this->sendGetRequest('/summary/orders', $summaryRequest);
+        $response = $this->sendGetRequest('/summary/products', $summaryRequest);
 
         return $this->responseToProductsSummary($response);
     }
