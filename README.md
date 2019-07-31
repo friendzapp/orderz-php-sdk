@@ -20,14 +20,14 @@ use Friendz\Orderz\Api\Requests\CreateOrder as CreateOrderRequest;
 
 function foo(): array
 {
-  $client = new OrderzClient('api-url', 'api-token');
+  $client = new OrderzClient('api-token');
   
   return $client->getProducts();
 }
 
 function bar(int $productId)
 {
-  $client = new OrderzClient('api-url', 'api-token');
+  $client = new OrderzClient('api-token');
   
   $orderRequest = new CreateOrderRequest;
   $orderRequest->externalId = 'your-unique-id';
