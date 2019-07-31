@@ -82,14 +82,16 @@ class Client
     }
 
     /**
-     * @param ProductsSummaryRequest $summaryRequest
+     * @param ProductsSummaryRequest $request
      * @return array
      * @throws ApiException
      * @throws MalformedResponseException
      */
-    public function getProductsSummary(ProductsSummaryRequest $summaryRequest)
+    public function getProductsSummary(ProductsSummaryRequest $request)
     {
-        $response = $this->sendGetRequest('/summary/products', $summaryRequest);
+        $data = $request->toArray();
+
+        $response = $this->sendGetRequest('/summary/products', $data);
 
         return $this->responseToProductsSummary($response);
     }
