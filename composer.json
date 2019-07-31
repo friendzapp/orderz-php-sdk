@@ -1,7 +1,7 @@
 {
     "name": "friendz/orderz-php-sdk",
     "type": "library",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "description": "orderz api-sdk",
     "authors": [
         {
