@@ -336,9 +336,9 @@ class Client
             $result[] = ProductSummary::make(
                 $entry->product_id,
                 $entry->order_count,
-                $entry->total,
-                $entry->cps,
-                $entry->date
+                $entry->total_cost,
+                $entry->unit_cost,
+                $entry->cps
             );
         }
 

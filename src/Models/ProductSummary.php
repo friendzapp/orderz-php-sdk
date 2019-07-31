@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Friendz\Orderz\Api\Models;
 
-use Carbon\Carbon;
-
 class ProductSummary
 {
     /**
@@ -21,7 +19,12 @@ class ProductSummary
     /**
      * @var float
      */
-    public $total;
+    public $totalCost;
+
+    /**
+     * @var float
+     */
+    public $unitCost;
 
     /**
      * @var float
@@ -29,44 +32,28 @@ class ProductSummary
     public $cps;
 
     /**
-     * @var string
-     */
-    public $rawDate;
-
-    /**
-     * @var Carbon|null
-     */
-    public $date;
-
-    /**
      * @param int $productId
      * @param int $orderCount
-     * @param float $total
+     * @param float $totalCost
+     * @param float $unitCost
      * @param float $cps
-     * @param string $rawDate
      * @return ProductSummary
      */
     public static function make(
         int $productId,
         int $orderCount,
-        float $total,
-        float $cps,
-        string $rawDate
+        float $totalCost,
+        float $unitCost,
+        float $cps
     ): self
     {
         $model = new static;
 
         $model->productId = $productId;
         $model->orderCount = $orderCount;
-        $model->total = $total;
+        $model->totalCost = $totalCost;
+        $model->unitCost = $unitCost;
         $model->cps = $cps;
-        $model->rawDate = $rawDate;
-
-        try {
-            $model->date = Carbon::parse($rawDate);
-        } catch (\Exception $e) {
-            $model->date = null;
-        }
 
         return $model;
     }
