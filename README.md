@@ -2,7 +2,7 @@
 
 ## Installation
 `
-  composer require friendz/orderz-php-sdk
+  composer require friendzapp/orderz-php-sdk
 `
 
 ## Requirements

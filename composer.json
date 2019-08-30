@@ -1,5 +1,5 @@
 {
-    "name": "friendz/orderz-php-sdk",
+    "name": "friendzapp/orderz-php-sdk",
     "type": "library",
     "version": "0.0.12",
     "description": "orderz api-sdk",

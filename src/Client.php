@@ -258,6 +258,8 @@ class Client
         return Order::make(
             (int)$order->id,
             (string)$order->externalId,
+            (float)$order->discount_percentage,
+            (float)$order->cost,
             $order->status,
             $results
         );
