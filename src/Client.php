@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Friendz\Orderz\Api;
 
+use Carbon\Carbon;
 use Friendz\Orderz\Api\Models\ProductSummary;
 use Friendz\Orderz\Api\Requests\ProductsSummary as ProductsSummaryRequest;
+use Friendz\Orderz\Models\Balance;
 use function GuzzleHttp\Psr7\modify_request;
 use GuzzleHttp\Psr7\Request;
 use Friendz\Orderz\Api\Models\Order;
@@ -94,6 +96,24 @@ class Client
         $response = $this->sendGetRequest('/summary/products', $data);
 
         return $this->responseToProductsSummary($response);
+    }
+
+    /**
+     * @param string|null $serviceName
+     * @return array
+     * @throws ApiException
+     * @throws MalformedResponseException
+     */
+    public function getBalance(?string $serviceName)
+    {
+        $url = '/balance';
+        if (!empty($serviceName)) {
+            $url .= '/' . $serviceName;
+        }
+
+        $response = $this->sendGetRequest($url);
+
+        return $this->responseToServiceBalance($response);
     }
 
     /**
@@ -341,6 +361,45 @@ class Client
                 $entry->total_cost,
                 $entry->unit_cost,
                 $entry->cps
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param $data
+     * @return array
+     * @throws MalformedResponseException
+     */
+    private function responseToServiceBalance($data): array
+    {
+        if (!$data) {
+            return [];
+        }
+
+        if (!is_object($data)) {
+            $data = (object)$data;
+        }
+
+        if (!property_exists($data, 'status') || !property_exists($data, 'balances')) {
+            throw new MalformedResponseException(
+                sprintf('`status` or `balances` attributes not defined in response body. Raw response body: %s', json_encode($data)),
+                true
+            );
+        }
+
+        $balances = $data->balances;
+        if (!$balances || !is_array($balances)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($balances as $balance) {
+            $result[] = Balance::make(
+                $balance->service,
+                (float)$balance->balance,
+                Carbon::parse($balance->date)
             );
         }
 
