@@ -39,6 +39,8 @@ class Order
     /**
      * @param int $id
      * @param string $externalId
+     * @param float $discount_percentage
+     * @param float $cost
      * @param string $status
      * @param array $results
      * @return Order
