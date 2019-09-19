@@ -319,7 +319,8 @@ class Client
                 $product->name,
                 $product->cost,
                 $product->available,
-                $product->discount_percentage
+                $product->discount_percentage,
+                $product->remote_service
             );
         }
 

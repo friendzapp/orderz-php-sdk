@@ -32,11 +32,17 @@ class Product
     public $discountPercentage;
 
     /**
+     * @var string|null
+     */
+    public $remoteService;
+
+    /**
      * @param int $id
      * @param string $name
      * @param float $cost
      * @param bool $available
      * @param float $discountPercentage
+     * @param string|null $remoteService
      * @return Product
      */
     public static function make(
@@ -44,7 +50,8 @@ class Product
         string $name,
         float $cost,
         bool $available,
-        float $discountPercentage
+        float $discountPercentage,
+        ?string $remoteService = null
     ): self
     {
         $model = new static;
@@ -54,6 +61,7 @@ class Product
         $model->cost = $cost;
         $model->available = $available;
         $model->discountPercentage = $discountPercentage;
+        $model->remoteService = $remoteService;
 
         return $model;
     }
