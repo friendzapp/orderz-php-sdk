@@ -45,7 +45,14 @@ class Order
      * @param array $results
      * @return Order
      */
-    public static function make(int $id, string $externalId, float $discount_percentage, float $cost, string $status, array $results)
+    public static function make(
+        int $id,
+        string $externalId,
+        float $discount_percentage,
+        float $cost,
+        string $status,
+        array $results
+    )
     {
         $model =  new static();
 

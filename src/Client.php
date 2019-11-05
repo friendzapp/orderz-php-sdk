@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace Friendz\Orderz\Api;
 
 use Carbon\Carbon;
-use Friendz\Orderz\Api\Models\ProductSummary;
-use Friendz\Orderz\Api\Requests\ProductsSummary as ProductsSummaryRequest;
-use Friendz\Orderz\Models\Balance;
-use function GuzzleHttp\Psr7\modify_request;
 use GuzzleHttp\Psr7\Request;
+use Friendz\Orderz\Models\Balance;
 use Friendz\Orderz\Api\Models\Order;
 use GuzzleHttp\Client as GuzzleClient;
 use Friendz\Orderz\Api\Models\Product;
@@ -17,8 +14,11 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use Friendz\Orderz\Api\Models\OrderResult;
 use Friendz\Orderz\Api\Requests\CreateOrder;
+use Friendz\Orderz\Api\Models\ProductSummary;
 use Friendz\Orderz\Api\Exceptions\ApiException;
 use Friendz\Orderz\Api\Exceptions\MalformedResponseException;
+use Friendz\Orderz\Api\Requests\ProductsSummary as ProductsSummaryRequest;
+use function GuzzleHttp\Psr7\modify_request;
 
 class Client
 {
@@ -33,6 +33,11 @@ class Client
     private $httpClient;
 
     /**
+     * @var array
+     */
+    private $passwords = [];
+
+    /**
      * Client constructor.
      * @param string $token
      */
@@ -41,6 +46,15 @@ class Client
         $this->token = $token;
 
         $this->httpClient = new GuzzleClient();
+    }
+
+    /**
+     * @param string|int $clientId
+     * @param string $password
+     */
+    public function setPassword($clientId, string $password)
+    {
+        $this->passwords[$clientId] = $password;
     }
 
     /**
@@ -89,7 +103,7 @@ class Client
      * @throws ApiException
      * @throws MalformedResponseException
      */
-    public function getProductsSummary(ProductsSummaryRequest $request)
+    public function getProductsSummary(ProductsSummaryRequest $request): array
     {
         $data = $request->toArray();
 
@@ -104,7 +118,7 @@ class Client
      * @throws ApiException
      * @throws MalformedResponseException
      */
-    public function getBalance(?string $serviceName)
+    public function getBalance(?string $serviceName): array
     {
         $url = '/balance';
         if (!empty($serviceName)) {
@@ -206,7 +220,8 @@ class Client
      * @throws ApiException
      * @throws MalformedResponseException
      */
-    private function handleClientException(ClientException $e) {
+    private function handleClientException(ClientException $e)
+    {
         $response = $e->getResponse();
         $statusCode = $response->getStatusCode();
 
@@ -266,12 +281,15 @@ class Client
         }
 
         $order = $data->order;
+        $clientId = $order->client_id ? (int)$order->client_id : null;
 
         $results = [];
         foreach ($order->result as $result) {
             $results[] = OrderResult::make(
                 $result->link,
-                $result->code
+                $result->code,
+                $this->passwords,
+                $clientId
             );
         }
 

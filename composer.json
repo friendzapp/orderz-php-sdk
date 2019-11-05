@@ -14,7 +14,8 @@
         "php": ">=7.2.0",
         "nesbot/carbon": "2.19.2",
         "guzzlehttp/guzzle": "6.3.3",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-openssl": "*"
     },
     "autoload": {
         "psr-4": {
