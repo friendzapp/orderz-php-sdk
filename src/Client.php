@@ -284,13 +284,15 @@ class Client
         $clientId = $order->client_id ? (int)$order->client_id : null;
 
         $results = [];
-        foreach ($order->result as $result) {
-            $results[] = OrderResult::make(
-                $result->link,
-                $result->code,
-                $this->passwords,
-                $clientId
-            );
+        if ($order->result) {
+            foreach ($order->result as $result) {
+                $results[] = OrderResult::make(
+                    $result->link,
+                    $result->code,
+                    $this->passwords,
+                    $clientId
+                );
+            }
         }
 
         return Order::make(
