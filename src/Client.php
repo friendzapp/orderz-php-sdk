@@ -98,6 +98,19 @@ class Client
     }
 
     /**
+     * @param $orderId
+     * @return Order|null
+     * @throws ApiException
+     * @throws MalformedResponseException
+     */
+    public function cancelOrder($orderId)
+    {
+        $response = $this->sendPostRequest("/orders/{$orderId}/cancel", []);
+
+        return $this->responseToOrder($response);
+    }
+
+    /**
      * @param ProductsSummaryRequest $request
      * @return array
      * @throws ApiException
